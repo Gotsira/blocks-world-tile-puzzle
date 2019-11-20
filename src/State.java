@@ -9,6 +9,7 @@ public class State {
 		this.positionA = positionA;
 		this.positionB = positionB;
 		this.positionC = positionC;
+		this.positionAgent = positionAgent;
 		this.puzzleSize = puzzleSize;
 		this.pastMove = pastMove;
 	}
