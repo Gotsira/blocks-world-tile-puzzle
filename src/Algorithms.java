@@ -6,6 +6,7 @@ public class Algorithms {
 	private int nodeExpanded, puzzleSize;
 	private ArrayList<Node> children = new ArrayList<Node>();
 	private String[][] puzzle;
+	private HashSet<Node> pastMoves = new HashSet<>();
 
 	public Algorithms(Node root, State goal, int puzzleSize) {
 		this.root = root;
@@ -22,23 +23,22 @@ public class Algorithms {
 
 		while (!queue.isEmpty()) {
 			Node current = queue.poll();
-			if (checkGoal(current.getPuzzleState(), goal)) {
+			if (current.isGoal(goal)) {
 				System.out.println(nodeExpanded);
 //				printPuzzle(this.getNodeSequence(current));
 				System.out.println("complete");
 				return;
 			}
 			nodeExpanded++;
-			children.add(current.moveUp());
-			children.add(current.moveRight());
-			children.add(current.moveDown());
-			children.add(current.moveLeft());
+			children = current.moveNode();
 			for (Node child : children) {
-				if (child != null) {
+//				System.out.println(pastMoves.contains(child));
+				if (!pastMoves.contains(child)) {
+					pastMoves.add(child);
 					queue.add(child);
 				}
 			}
-			children.clear();
+//			if(nodeExpanded == 4) return;
 		}
 	}
 
@@ -50,20 +50,18 @@ public class Algorithms {
 
 		while (!stack.isEmpty()) {
 			Node current = stack.pop();
-			if (checkGoal(current.getPuzzleState(), goal)) {
+			if (current.isGoal(goal)) {
 //				printPuzzle(this.getNodeSequence(current));
 				System.out.println(current.getLevel());
 				System.out.println("complete");
 				return;
 			}
 			nodeExpanded++;
-			children.add(current.moveUp());
-			children.add(current.moveRight());
-			children.add(current.moveDown());
-			children.add(current.moveLeft());
+			children = current.moveNode();
 			Collections.shuffle(children);
 			for (Node child : children) {
-				if (child != null) {
+				if (!pastMoves.contains(child)) {
+					pastMoves.add(child);
 					stack.push(child);
 				}
 			}
@@ -73,35 +71,35 @@ public class Algorithms {
 
 	public void IDDFS() {
 		nodeExpanded = 0;
-		int maxDept = 0;
+		int maxDept = 1;
 		Stack<Node> stack = new Stack<Node>();
+		pastMoves.add(root);
 		stack.push(root);
 		System.out.println("IDDFS");
 
 		while (!stack.isEmpty()) {
 			Node current = stack.pop();
-			if (checkGoal(current.getPuzzleState(), goal)) {
+			if (current.isGoal(goal)) {
 //				printPuzzle(this.getNodeSequence(current));
+				System.out.println(nodeExpanded);
 				System.out.println("complete");
 				System.out.println(maxDept);
 				return;
 			}
 			if (current.getLevel() < maxDept) {
 				nodeExpanded++;
-				children.add(current.moveUp());
-				children.add(current.moveRight());
-				children.add(current.moveDown());
-				children.add(current.moveLeft());
-				Collections.shuffle(children);
+				children = current.moveNode();
+//				Collections.shuffle(children);
 				for (Node child : children) {
-					if (child != null) {
+					if (!pastMoves.contains(child)) {
+						pastMoves.add(child);
 						stack.push(child);
 					}
 				}
-				children.clear();
 			}
 			if (stack.size() == 0) {
 				stack.push(root);
+				pastMoves.clear();
 				maxDept++;
 			}
 		}
@@ -113,33 +111,22 @@ public class Algorithms {
 		queue.add(root);
 		while(!queue.isEmpty()) {
 			Node current = queue.poll();
-			if (checkGoal(current.getPuzzleState(), goal)) {
+			if (current.isGoal(goal)) {
 				System.out.println(nodeExpanded);
 				System.out.println("complete");
 				return;
 			}
 			nodeExpanded++;
-			children.add(current.moveUp());
-			children.add(current.moveRight());
-			children.add(current.moveDown());
-			children.add(current.moveLeft());
+			children = current.moveNode();
 			for(Node child : children) {
-				if(child != null) {
+				if (!pastMoves.contains(child)) {
 					child.calculateDistanceToGoal(goal);
+					pastMoves.add(child);
 					queue.add(child);
 				}				
 			}
 			children.clear();
 		}
-	}
-
-	private boolean checkGoal(State current, State goal) {
-		for(int i = 1; i <= current.getPuzzleSize() - 1; i++) {
-			if(current.getAllPositions()[i].getX() != goal.getAllPositions()[i-1].getX() || current.getAllPositions()[i].getY() != goal.getAllPositions()[i-1].getY()) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private ArrayList<Node> getNodeSequence(Node node) {

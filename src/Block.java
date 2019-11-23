@@ -1,9 +1,9 @@
 
 public class Block {
 	private int x, y;
-	private char character;
+	private String character;
 	
-	public Block(int x, int y, char character) {
+	public Block(int x, int y, String character) {
 		this.x = x;
 		this.y = y;
 		this.character = character;
@@ -31,8 +31,30 @@ public class Block {
 		this.y = y;
 	}
 
-	public char getCharacter() {
+	public String getCharacter() {
 		return character;
 	}
+	
+	@Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Block block = (Block) o;
+
+        if (x != block.x) return false;
+        if (y != block.y) return false;
+        if (!character.equals(block.character)) return false;
+
+        return true;
+    }
+	
+	@Override
+    public int hashCode() {
+        int result = character.hashCode();
+        result = 31 * result + x;
+        result = 31 * result + y;
+        return result;
+    }
 	
 }
